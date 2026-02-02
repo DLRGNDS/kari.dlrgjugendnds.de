@@ -134,7 +134,7 @@
             <thead>
                 <tr>
                     <th class="sortable" data-key="vorname">Vorname  <i class="fa-solid fa-sort sort-icon"></i></th>
-                    <th>Nachname</th>
+                    <th class="sortable" data-key="nachname">Nachname  <i class="fa-solid fa-sort sort-icon"></i></th>
                     <th class="freitag schicht">Schicht Freitag</th>
                     <th class="sortable freitag position" data-key="freitag">Position Freitag  <i class="fa-solid fa-sort sort-icon"></i></th>
                     <th class="both"></th>
@@ -176,9 +176,14 @@
             'Schwimmrichter 3',
             'Schwimmrichter 3/4',
             'Schwimmrichter 4',
+            'Schwimmrichter 4/5',
             'Schwimmrichter 5',
             'Schwimmrichter 5/6',
             'Schwimmrichter 6',
+            'Schwimmrichter 6/7',
+            'Schwimmrichter 7',
+            'Schwimmrichter 7/8',
+            'Schwimmrichter 8',
             'Schwimmrichter (',
             'Reserve E1',
             'Zielrichter',
@@ -264,6 +269,23 @@
 
                 if (nachnameA < nachnameB) return -1;
                 if (nachnameA > nachnameB) return 1;
+
+                return 0;
+            });
+        }
+
+        function sortByNachname() {
+            karis.sort((a, b) => {
+                const vornameA = a.vorname?.toLowerCase();
+                const vornameB = b.vorname?.toLowerCase();
+                const nachnameA = a.nachname?.toLowerCase();
+                const nachnameB = b.nachname?.toLowerCase();
+
+                if (nachnameA < nachnameB) return -1;
+                if (nachnameA > nachnameB) return 1;
+
+                if (vornameA < vornameB) return -1;
+                if (vornameA > vornameB) return 1;
 
                 return 0;
             });
@@ -379,18 +401,24 @@
             autoScrollActive = false;
         }
 
+        const sortFuncMap = {
+            'vorname': sortByVorname,
+            'nachname': sortByNachname,
+            'freitag': () => sortByPosition('Position Freitag'),
+            'samstag': () => sortByPosition('Position Samstag'),
+        };
+
         function sortColumn(th) {
             const key = th.dataset.key;
             const direction = 'asc';
             const icon = th.querySelector(".sort-icon");
 
-            if (key === 'vorname') {
-                sortByVorname();
-            } else if (key === 'freitag') {
-                sortByPosition('Position Freitag');
-            } else if (key === 'samstag') {
-                sortByPosition('Position Samstag');
+            const sortFunc = sortFuncMap[key];
+            if (!sortFunc) {
+                console.warn(`No sorting function for key: ${key}`);
+                return;
             }
+            sortFunc();
 
             document.querySelectorAll(".sort-icon").forEach(i => {
                 i.className = "fa-solid fa-sort sort-icon";
